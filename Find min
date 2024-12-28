@@ -1,0 +1,32 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int findMin(vector<int>& nums) {
+    int left = 0, right = nums.size() - 1;
+
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+
+        // If the middle element is equal to the rightmost element, reduce the search space
+        if (nums[mid] == nums[right]) {
+            right--;
+        }
+        // If mid element is greater than rightmost, the minimum is in the right part
+        else if (nums[mid] > nums[right]) {
+            left = mid + 1;
+        }
+        // If mid element is smaller than rightmost, the minimum is in the left part
+        else {
+            right = mid;
+        }
+    }
+    
+    return nums[left];  // Left will point to the minimum element
+}
+
+int main() {
+    vector<int> nums = {2, 2, 2, 0, 1};
+    cout << "Minimum element: " << findMin(nums) << endl; // Output: 0
+    return 0;
+}
