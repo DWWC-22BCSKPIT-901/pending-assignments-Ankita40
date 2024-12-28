@@ -1,0 +1,71 @@
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+
+class TextEditor {
+private:
+    string S;                            
+    stack<pair<int, string>> history;    
+
+public:
+    void append(const string& W) {
+        history.push({1, W});            
+        S += W;             
+    }
+
+    void deleteChars(int k) {
+        string deleted = S.substr(S.size() - k, k); 
+        history.push({2, deleted});     
+        S.erase(S.size() - k); 
+    }
+
+    void print(int k) const {
+        if (k > 0 && k <= S.size()) {
+            cout << S[k - 1] << endl; 
+        }
+    }
+
+    void undo() {
+        if (!history.empty()) {
+            auto lastOp = history.top();
+            history.pop();
+
+            if (lastOp.first == 1) {    // Undo append operation
+                int len = lastOp.second.size();
+                S.erase(S.size() - len);
+            } else if (lastOp.first == 2) { // Undo delete operation
+                S += lastOp.second;
+            }
+        }
+    }
+};
+
+int main() {
+    TextEditor editor;
+    int Q; // Number of operations
+    cin >> Q;
+
+    while (Q--) {
+        int op;
+        cin >> op;
+
+        if (op == 1) {  // append
+            string W;
+            cin >> W;
+            editor.append(W);
+        } else if (op == 2) {  // delete
+            int k;
+            cin >> k;
+            editor.deleteChars(k);
+        } else if (op == 3) {  // print
+            int k;
+            cin >> k;
+            editor.print(k);
+        } else if (op == 4) {  // undo
+            editor.undo();
+        }
+    }
+
+    return 0;
+}
