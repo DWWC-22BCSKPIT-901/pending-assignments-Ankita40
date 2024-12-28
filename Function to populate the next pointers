@@ -1,0 +1,84 @@
+#include <iostream>
+using namespace std;
+
+// Definition for a binary tree node.
+struct Node {
+    int val;
+    Node* left;
+    Node* right;
+    Node* next;
+    Node(int x) : val(x), left(nullptr), right(nullptr), next(nullptr) {}
+};
+
+// Function to populate the next pointers
+Node* connect(Node* root) {
+    if (!root) return nullptr;
+
+    Node* leftmost = root; // Start with the leftmost node of the tree
+
+    while (leftmost->left) { // While there are levels to process
+        Node* head = leftmost;
+
+        while (head) { // Traverse nodes in the current level
+            // Connect the left child to the right child
+            head->left->next = head->right;
+
+            // Connect the right child to the next node's left child, if any
+            if (head->next) {
+                head->right->next = head->next->left;
+            }
+
+            // Move to the next node in the current level
+            head = head->next;
+        }
+
+        // Move to the next level
+        leftmost = leftmost->left;
+    }
+
+    return root;
+}
+
+// Helper function to print the tree level by level with next pointers
+void printTreeWithNext(Node* root) {
+    Node* level = root;
+    while (level) {
+        Node* current = level;
+        while (current) {
+            cout << current->val << " -> ";
+            if (current->next) {
+                cout << current->next->val << " ";
+            } else {
+                cout << "NULL ";
+            }
+            current = current->next;
+        }
+        cout << endl;
+        level = level->left;
+    }
+}
+
+int main() {
+    // Example binary tree:
+    //        1
+    //      /   \
+    //     2     3
+    //    / \   / \
+    //   4   5 6   7
+    Node* root = new Node(1);
+    root->left = new Node(2);
+    root->right = new Node(3);
+    root->left->left = new Node(4);
+    root->left->right = new Node(5);
+    root->right->left = new Node(6);
+    root->right->right = new Node(7);
+
+    // Populate next pointers
+    root = connect(root);
+
+    // Print tree with next pointers
+    cout << "Tree with next pointers:" << endl;
+    printTreeWithNext(root);
+
+    return 0;
+}
