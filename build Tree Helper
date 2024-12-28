@@ -1,0 +1,82 @@
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+using namespace std;
+
+// Definition for a binary tree node.
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+// Helper function to build the tree
+TreeNode* buildTreeHelper(vector<int>& preorder, int preStart, int preEnd, 
+                          vector<int>& inorder, int inStart, int inEnd, 
+                          unordered_map<int, int>& inMap) {
+    if (preStart > preEnd || inStart > inEnd) return nullptr;
+
+    // The first element in preorder is the root
+    TreeNode* root = new TreeNode(preorder[preStart]);
+
+    // Find the root in the inorder array
+    int inRoot = inMap[root->val];
+    int numsLeft = inRoot - inStart;
+
+    // Recursively construct the left and right subtrees
+    root->left = buildTreeHelper(preorder, preStart + 1, preStart + numsLeft, 
+                                 inorder, inStart, inRoot - 1, inMap);
+    root->right = buildTreeHelper(preorder, preStart + numsLeft + 1, preEnd, 
+                                  inorder, inRoot + 1, inEnd, inMap);
+
+    return root;
+}
+
+// Function to construct the binary tree
+TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+    unordered_map<int, int> inMap;
+
+    // Store the indices of elements in inorder for quick lookup
+    for (int i = 0; i < inorder.size(); i++) {
+        inMap[inorder[i]] = i;
+    }
+
+    return buildTreeHelper(preorder, 0, preorder.size() - 1, 
+                           inorder, 0, inorder.size() - 1, inMap);
+}
+
+// Helper function to print the tree (Level-order traversal)
+void printTree(TreeNode* root) {
+    if (!root) return;
+    vector<TreeNode*> q = {root};
+    while (!q.empty()) {
+        vector<TreeNode*> nextLevel;
+        for (auto node : q) {
+            if (node) {
+                cout << node->val << " ";
+                nextLevel.push_back(node->left);
+                nextLevel.push_back(node->right);
+            } else {
+                cout << "null ";
+            }
+        }
+        q = nextLevel;
+    }
+}
+
+int main() {
+    // Example Input
+    vector<int> preorder = {3, 9, 20, 15, 7};
+    vector<int> inorder = {9, 3, 15, 20, 7};
+
+    // Build the tree
+    TreeNode* root = buildTree(preorder, inorder);
+
+    // Output the tree (Level-order traversal)
+    cout << "Output: ";
+    printTree(root); // Expected Output: 3 9 20 null null 15 7
+    cout << endl;
+
+    return 0;
+}
