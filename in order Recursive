@@ -1,0 +1,76 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+using namespace std;
+
+// Definition for a binary tree node.
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+// Recursive approach
+void inorderRecursive(TreeNode* root, vector<int>& result) {
+    if (root) {
+        inorderRecursive(root->left, result);  // Visit left subtree
+        result.push_back(root->val);          // Visit root
+        inorderRecursive(root->right, result); // Visit right subtree
+    }
+}
+
+vector<int> inorderTraversalRecursive(TreeNode* root) {
+    vector<int> result;
+    inorderRecursive(root, result);
+    return result;
+}
+
+// Iterative approach
+vector<int> inorderTraversalIterative(TreeNode* root) {
+    vector<int> result;
+    stack<TreeNode*> s;
+    TreeNode* current = root;
+
+    while (current || !s.empty()) {
+        while (current) {  // Reach the leftmost node
+            s.push(current);
+            current = current->left;
+        }
+        current = s.top(); s.pop(); // Node to be visited
+        result.push_back(current->val);
+        current = current->right;  // Visit the right subtree
+    }
+
+    return result;
+}
+
+int main() {
+    // Example Binary Tree:
+    //     1
+    //      \
+    //       2
+    //      /
+    //     3
+    TreeNode* root = new TreeNode(1);
+    root->right = new TreeNode(2);
+    root->right->left = new TreeNode(3);
+
+    // Recursive Inorder Traversal
+    vector<int> recursiveResult = inorderTraversalRecursive(root);
+    cout << "Recursive Inorder Traversal: ";
+    for (int val : recursiveResult) {
+        cout << val << " ";
+    }
+    cout << endl;
+
+    // Iterative Inorder Traversal
+    vector<int> iterativeResult = inorderTraversalIterative(root);
+    cout << "Iterative Inorder Traversal: ";
+    for (int val : iterativeResult) {
+        cout << val << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
