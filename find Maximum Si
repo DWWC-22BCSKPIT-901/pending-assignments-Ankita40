@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <climits>
+using namespace std;
+
+long long calculateSi(int m1, int m2) {
+    return (((m1 & m2) ^ (m1 | m2)) * (m1 ^ m2));
+}
+
+long long findMaximumSi(const vector<int>& arr) {
+    int n = arr.size();
+    stack<int> st;
+    long long maxSi = LLONG_MIN;
+
+    for (int i = 0; i < n; i++) {
+        while (!st.empty() && arr[st.top()] >= arr[i]) {
+            int top = st.top();
+            st.pop();
+            int m1 = arr[top];
+            int m2 = (st.empty() ? arr[i] : min(arr[st.top()], arr[i]));
+            maxSi = max(maxSi, calculateSi(m1, m2));
+        }
+        st.push(i);
+    }
+    while (!st.empty()) {
+        int top = st.top();
+        st.pop();
+        int m1 = arr[top];
+        int m2 = (st.empty() ? INT_MAX : arr[st.top()]);
+        maxSi = max(maxSi, calculateSi(m1, m2));
+    }
+
+    return maxSi;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    vector<int> arr(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    cout << findMaximumSi(arr) << endl;
+    return 0;
+}
