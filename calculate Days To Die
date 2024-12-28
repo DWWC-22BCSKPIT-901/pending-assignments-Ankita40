@@ -1,0 +1,36 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+using namespace std;
+
+int calculateDaysToDie(vector<int>& plants) {
+    int n = plants.size();
+    stack<int> st;
+    vector<int> days(n, 0); 
+    for (int i = 0; i < n; ++i) {
+       
+        while (!st.empty() && plants[st.top()] <= plants[i]) {
+            days[i] = max(days[i], days[st.top()] + 1);
+            st.pop();
+        }
+        st.push(i);
+    }
+    int result = 0;
+    for (int i = 0; i < n; ++i) {
+        result = max(result, days[i]);
+    }
+
+    return result;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    vector<int> plants(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> plants[i];
+    }
+    cout << calculateDaysToDie(plants) << endl;
+
+    return 0;
+}
