@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+void dfs(int node, int mask, vector<vector<int>>& tree, string& s, unordered_map<int, int>& maskCount, long long& result) {
+    // Count paths ending at this node that form a palindrome
+    result += maskCount[mask]; // Paths with the same mask
+
+    // Check for masks differing by one bit (single odd character)
+    for (int i = 0; i < 26; i++) {
+        result += maskCount[mask ^ (1 << i)];
+    }
+
+    // Increment the count of the current mask
+    maskCount[mask]++;
+
+    // DFS to child nodes
+    for (int child : tree[node]) {
+        dfs(child, mask ^ (1 << (s[child] - 'a')), tree, s, maskCount, result);
+    }
+
+    // Backtrack: Decrement the count of the current mask
+    maskCount[mask]--;
+}
+
+long long countPalindromePaths(vector<int>& parent, string s) {
+    int n = parent.size();
+    vector<vector<int>> tree(n);
+
+    // Build the tree
+    for (int i = 1; i < n; i++) {
+        tree[parent[i]].push_back(i);
+    }
+
+    unordered_map<int, int> maskCount; // To store the frequency of masks
+    maskCount[0] = 1; // Base case: Empty path has a zero mask
+
+    long long result = 0;
+    dfs(0, 0, tree, s, maskCount, result);
+    return result;
+}
+
+int main() {
+    // Example input
+    vector<int> parent = {-1, 0, 0, 1, 1, 2, 2};
+    string s = "abacaba";
+
+    long long result = countPalindromePaths(parent, s);
+    cout << "Number of palindrome paths: " << result << endl;
+
+    return 0;
+}
