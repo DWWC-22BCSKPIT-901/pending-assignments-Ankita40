@@ -1,0 +1,114 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+vector<int> topologicalSort(int n, vector<vector<int>>& graph, vector<int>& inDegree) {
+    queue<int> q;
+    vector<int> sortedList;
+    
+    // Find nodes with zero in-degree
+    for (int i = 0; i < n; ++i) {
+        if (inDegree[i] == 0) {
+            q.push(i);
+        }
+    }
+    
+    // Perform topological sort
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        sortedList.push_back(node);
+        
+        for (int neighbor : graph[node]) {
+            --inDegree[neighbor];
+            if (inDegree[neighbor] == 0) {
+                q.push(neighbor);
+            }
+        }
+    }
+    
+    // If we couldn't visit all nodes, there's a cycle
+    if (sortedList.size() != n) {
+        return {};
+    }
+    
+    return sortedList;
+}
+
+vector<int> sortItems(int n, int m, vector<int>& group, vector<vector<int>>& beforeItems) {
+    // Step 1: Assign a new group number to ungrouped items
+    for (int i = 0; i < n; ++i) {
+        if (group[i] == -1) {
+            group[i] = m++; // Assign a new group ID to ungrouped items
+        }
+    }
+    
+    // Step 2: Build item and group graphs
+    vector<vector<int>> itemGraph(n), groupGraph(m);
+    vector<int> itemInDegree(n, 0), groupInDegree(m, 0);
+    
+    // Build the graphs for items and groups
+    for (int i = 0; i < n; ++i) {
+        for (int before : beforeItems[i]) {
+            // Item dependency
+            itemGraph[before].push_back(i);
+            itemInDegree[i]++;
+            
+            // Group dependency
+            if (group[before] != group[i]) {
+                groupGraph[group[before]].push_back(group[i]);
+                groupInDegree[group[i]]++;
+            }
+        }
+    }
+    
+    // Step 3: Topologically sort the items and groups
+    vector<int> sortedItems = topologicalSort(n, itemGraph, itemInDegree);
+    if (sortedItems.empty()) {
+        return {}; // Cycle detected in item graph
+    }
+    
+    vector<int> sortedGroups = topologicalSort(m, groupGraph, groupInDegree);
+    if (sortedGroups.empty()) {
+        return {}; // Cycle detected in group graph
+    }
+    
+    // Step 4: Group items by their group ID
+    unordered_map<int, vector<int>> groupToItems;
+    for (int item : sortedItems) {
+        groupToItems[group[item]].push_back(item);
+    }
+    
+    // Step 5: Construct the final sorted result
+    vector<int> result;
+    for (int groupId : sortedGroups) {
+        for (int item : groupToItems[groupId]) {
+            result.push_back(item);
+        }
+    }
+    
+    return result;
+}
+
+int main() {
+    vector<int> group = {1, 0, 0, -1, 1, 2};
+    vector<vector<int>> beforeItems = {{4, 3}, {3}, {4, 2}, {}, {5}, {}};
+    
+    vector<int> result = sortItems(6, 3, group, beforeItems);
+    
+    // Print the result
+    if (result.empty()) {
+        cout << "No valid sorting found." << endl;
+    } else {
+        for (int item : result) {
+            cout << item << " ";
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
